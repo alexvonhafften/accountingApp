@@ -2,7 +2,10 @@
 require 'rubygems'
 require 'bundler/setup'
 Bundler.require
-require './models/TodoItem'
+
+require './models/User.rb'
+require './models/Group.rb'
+require './models/Payment.rb'
 
 if ENV['DATABASE_URL']
 	ActiveRecord::Base.establish_connection(ENV['DATABASE_URL'])
@@ -12,30 +15,4 @@ else
 		:database => 'db/development.db',
 		:encoding => 'utf8'
 	)
-end
-
-get '/' do
-	@task = TodoItem.all.order(:due_date)
-	erb :index
-end
-
-post '/' do
-	TodoItem.create(params)
-	redirect '/'
-end
-
-get '/delete/:id' do
-	TodoItem.find(params[:id]).destroy
-	redirect '/'
-end
-
-helpers do
-	def blank?(x)
-		x.nil? || x == ""
-	end
-
-	def delete(x)
-		TodoItem.find(description = 'x').destroy()
-		redirect '/'
-	end
 end
