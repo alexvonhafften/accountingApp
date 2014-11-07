@@ -1,0 +1,38 @@
+body {
+  background-image: url('2001.gif');
+  background-size: 1280px 416px;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  background-position: center;
+  background-color: #000000;
+}
+
+h1 {
+  text-align: center;
+  font-family: 'Modern No. 20', 'Palatino', 'Optima', sans-serif;
+  font-size: 90px;
+  color: transparent;
+  text-shadow: 0 0 10px #CC0000;
+}
+
+ul {
+  background-color: rgba(0,0,0,0.7);
+  font-family: 'Palatino', 'Optima', sans-serif;
+  font-size: 16px;
+  color: #E2BB03;
+  width:35%;
+  left: 8px;
+  top: 8px;
+  bottom: 8px;
+  list-style-type: none;
+}
+
+form {
+  font-family: 'Palatino', 'Optima', sans-serif;
+  font-size: 32px;
+  color: #CC0000;
+  text-align: center;
+  position:fixed;
+  bottom:32px;
+  width:100%;
+}
