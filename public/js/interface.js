@@ -77,7 +77,9 @@ $(".cancel-user").click(function(event){ //hide forms when user clicks 'cancel'
 	}
 })
 
-
+$(".cancel-delete").click(function(){
+	console.error("Needs to be written");
+})
 
 
 

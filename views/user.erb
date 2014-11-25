@@ -7,7 +7,7 @@
         <div class="form-group">
           <div class="col-lg-10">
             <select class="form-control" id="select" name="group_id">
-              <% @user.groups.each do |g| %>
+              <% @user.groups.where(active:true).each do |g| %>
                 <option value="<%= g.id %>"><%= g.name %></option>
               <% end %>
             </select>
@@ -40,7 +40,7 @@
       </fieldset>
     </form>
   </li>
-  <% @user.groups.each do |g| %>
+  <% @user.groups.where(active:true).each do |g| %>
   <li class="list-group-item group">
     <h3 class="list-group-item-heading"><%= g.name %> <span class="payment-size payment-amount badge"><%= g.payments.size %> bill(s)</span></h4>
     <div class="groupInfo">
@@ -52,8 +52,8 @@
           <p class="payment-due">Due: <%= p.due %></p>
         <% end %>
       <% end %>
-      <h4 class="delete-group">Delete</h4>
-      <h4 class="edit-group">Edit</h4>
+      <a href="delete?type=g&id=<%= g.id %>"><button class="delete-group">Delete</button></a>
+      <a href=""><button class="edit-group">Edit</button></a>
     </div>
   </li>
   <% end %>

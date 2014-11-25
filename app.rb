@@ -75,7 +75,7 @@ end
 
 #handle creation of new group
 post '/new_group' do
-	if @user.valid?
+	if @user
 		@user.groups.create(name: params[:name])
 		redirect '/'
 	else
@@ -84,13 +84,43 @@ post '/new_group' do
 	end
 end
 
+#handle creation of new payment
 post '/new_payment' do
-	if @user.valid?
+	if @user
 		group = Group.find(params[:group_id])
 		Payment.create(user: @user, group: group, name: params[:name], amount: params[:amount], due: params[:due])
 		redirect '/'
 	else
 		@message = "You Must Be Logged In To Create A Payment"
+		erb :message_page
+	end	
+end
+
+get '/delete' do
+	if @user
+		@type = params[:type]
+		@id = params[:id]
+		if @type == 'g'
+			@group = Group.find(@id)
+		end
+		erb :delete
+	else
+		@message = "You Must Be Logged In To Delete Items"
+		erb :message_page
+	end
+end
+
+post '/delete' do
+	if @user
+		if params[:type] == 'g' #deactivate a group
+			@group = Group.find(params[:id])
+			@group.update(active: 'false')
+		elsif params[:type] == 'u' #deactivate a user
+			@user.update(active: 'false')
+		end
+		redirect '/'
+	else
+		@message = "You Must Be Logged In To Delete Items"
 		erb :message_page
 	end	
 end
