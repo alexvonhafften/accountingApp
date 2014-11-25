@@ -2,6 +2,7 @@
 require 'rubygems'
 require 'bundler/setup'
 Bundler.require
+Dotenv.load
 
 require './models/User.rb'
 require './models/Group.rb'
@@ -9,7 +10,7 @@ require './models/Payment.rb'
 
 enable :sessions
 
-set :session_secret, '85txrIIvTDe0AWPCvbeXuXXpULCWZgpoRo1LqY8YsR9GAbph0jfOHosvtY4QFxi6'
+set :session_secret, ENV['SESSION_SECRET']
 
 if ENV['DATABASE_URL']
 	ActiveRecord::Base.establish_connection(ENV['DATABASE_URL'])
