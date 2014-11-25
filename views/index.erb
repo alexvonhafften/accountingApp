@@ -1,0 +1,73 @@
+<div id="welcome">
+  <h1>Welcome</h1>
+  <p>The accounting app that does the billing for you.</p>
+
+  <a id="login" class="btn btn-primary btn-lg">Login</a>
+  <a id="register" class="btn btn-primary btn-lg">Register</a>
+</div>
+<div id="login-form" class="hide2">
+  <form class="form-horizontal" method="POST" action="login">
+    <fieldset>
+      <legend>Login</legend>
+      <div class="form-group">
+        <label for="inputEmail" class="col-lg-2 control-label">Email</label>
+        <div class="col-lg-10">
+          <input type="text" class="form-control" id="inputEmail" placeholder="Email" name="email">
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="inputPassword" class="col-lg-2 control-label">Password</label>
+        <div class="col-lg-10">
+          <input type="password" class="form-control" id="inputPassword" placeholder="Password" name="password">
+        </div>
+      </div>
+      <div class="form-group">
+        <div class="col-lg-10 col-lg-offset-2">
+          <button type="submit" class="btn btn-primary">Submit</button>
+          <button class="btn btn-default cancel">Cancel</button>
+          <button class="btn btn-default btn-right" id="register-from-login">Register</button>
+        </div>
+      </div>
+    </fieldset>
+  </form>
+</div>
+<div id="register-form" class="hide2">
+  <form class="form-horizontal" method="POST" action="/new_user">
+    <fieldset>
+      <legend>Register</legend>
+      <div class="form-group">
+        <label for="inputName" class="col-lg-2 control-label">Name</label>
+        <div class="col-lg-10">
+          <input type="text" class="form-control" id="inputLastName" placeholder="Name" name="name">
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="inputEmail" class="col-lg-2 control-label">Email</label>
+        <div class="col-lg-10">
+          <input type="text" class="form-control" id="inputEmail" placeholder="Email" name="email">
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="inputPassword" class="col-lg-2 control-label">Password</label>
+        <div class="col-lg-10">
+          <input type="password" class="form-control" id="newInputPassword" placeholder="Password" name="password">
+          <span id="passwordSpan">Password must be 8 characters long</span>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="inputPasswordConfirmation" class="col-lg-2 control-label">Password Confirmation</label>
+        <div class="col-lg-10">
+          <input type="password" class="form-control" id="inputPasswordConfirmation" placeholder="Password Confirmation" name="password_confirmation">
+          <span id="passwordCSpan">Passwords do not match</span>
+        </div>
+      </div>
+      <div class="form-group">
+        <div class="col-lg-10 col-lg-offset-2">
+          <button type="submit" class="btn btn-primary">Submit</button>
+          <button class="btn btn-default cancel">Cancel</button>
+        </div>
+      </div>
+    </fieldset>
+  </form>
+  <script type='text/javascript' src='js/password.js'></script>
+</div>

@@ -1,0 +1,70 @@
+.navbar{
+  border-radius: 0px;
+}
+
+.btn-right{
+  float: right;
+}
+
+
+.new-payment li:hover{
+	background-color: #b81e0d;
+}
+
+.list-group li:hover{
+  cursor: pointer;
+}
+
+.delete-group{
+	float:left;
+	width:50%;
+	text-align: center;
+}
+
+.edit-group{
+	float:right;
+	width:50%;
+	text-align: center;
+}
+
+.payment-amount{
+	float:right;
+}
+
+.payment-name{
+	clear: both;
+	float: left;
+}
+
+.payment-due{
+	clear:both;
+}
+
+.new-payment{
+	background-color: #b81e0d;
+}
+
+.new-payment h4{
+	color: white;
+	text-align: center;
+}
+
+.new-payment{
+	background-color: #ebebeb;
+}
+
+.new-payment h4{
+	color: black;
+	text-align: center;
+}
+
+.new-group{
+	background-color: #ebebeb;
+}
+
+.new-group h4{
+	color: black;
+	text-align: center;
+}
+
+

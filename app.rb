@@ -9,6 +9,8 @@ require './models/Payment.rb'
 
 enable :sessions
 
+set :session_secret, '85txrIIvTDe0AWPCvbeXuXXpULCWZgpoRo1LqY8YsR9GAbph0jfOHosvtY4QFxi6'
+
 if ENV['DATABASE_URL']
 	ActiveRecord::Base.establish_connection(ENV['DATABASE_URL'])
 else
@@ -19,47 +21,85 @@ else
 	)
 end
 
-GET '/' do
-	erb :index
+before do
+	@user = User.find_by(name: session[:name])
 end
 
-POST '/' do
 
-	user = User.find_by(name: params[:user_name])
-	if user.nil?
-		return 'User not found'
-	if user.Authenticate(params[:password]) do
-		session[:username] = user.name
-		redirect '/u/'+user.name
+get '/' do
+	if @user
+		erb :user
 	else
-		return 'Login Failed'
+		erb :index
 	end
-	# for returning user
-	#  login
-	# for new user
-	#  get info and go to create groups page
 end
 
-GET '/logout' do
+post '/login' do
+	# Get a handle to a user with a name that matches the
+  # submitted username. Returns nil if no such user
+  # exists
+  user = User.find_by(email: params[:email])
+
+  if user.nil?
+    # first, we check if the user is in our database
+    @message = "User not found."
+    erb :message_page
+
+  elsif user.authenticate(params[:password])
+    # if they are, we check if their password is valid,
+    # then actually log in the user by setting a session
+    # cookie to their username
+    session[:name] = user.name
+    redirect '/'
+
+  else
+    # if the password doesn't match our stored hash,
+    # show a nice error page
+    @message = "Incorrect password."
+    erb :message_page
+  end
+end
+
+
+#handle registration of a new user
+post '/new_user' do
+	@user = User.create(params)
+	if @user.valid?
+		session[:name] = @user.name
+    	redirect '/'
+	else
+    	@message = @user.errors.full_messages.join(', ')
+    	erb :message_page
+	end
+end
+
+#handle creation of new group
+post '/new_group' do
+	if @user.valid?
+		@user.groups.create(name: params[:name])
+		redirect '/'
+	else
+		@message = "You Must Be Logged In To Create A Group"
+		erb :message_page
+	end
+end
+
+post '/new_payment' do
+	if @user.valid?
+		group = Group.find(params[:group_id])
+		Payment.create(user: @user, group: group, name: params[:name], amount: params[:amount], due: params[:due])
+		redirect '/'
+	else
+		@message = "You Must Be Logged In To Create A Payment"
+		erb :message_page
+	end	
+end
+
+get '/logout' do
 	session.clear
+	redirect '/'
 end
 
-GET '/groups' do
-	@User = User.find_by(name: session[:username])
-	erb :user
-end
-
-POST '/groups' do
-  # can create payment
-	# can create group
-end
-
-GET '/g/:group_id' do
-	@Group = Group.find_by(group_id: params[:group_id])
-	erb :group
-end
-
-POST '/g/:group' do
-  # add new member users
-	# post new payment
+get '/account' do
+	erb :account
 end
