@@ -78,6 +78,9 @@ end
 post '/new_group' do
 	if @user
 		@user.groups.create(name: params[:name])
+		unless params['emails'].nil?
+			add_members_to_group(params['emails'].split(','), Group.last.id)
+		end
 		redirect '/'
 	else
 		@message = "You Must Be Logged In To Create A Group"
@@ -95,6 +98,15 @@ post '/new_payment' do
 		@message = "You Must Be Logged In To Create A Payment"
 		erb :message_page
 	end	
+end
+
+post '/new_group_member' do
+	if @user
+		add_members_to_group(params['emails'].split(','), params['id'])
+	else
+		@message = "You Must Be Logged In To Add Users To Groups"
+		erb :message_page
+	end
 end
 
 get '/delete' do
@@ -134,3 +146,32 @@ end
 get '/account' do
 	erb :account
 end
+
+
+
+#####################
+# Helpers
+
+helpers do
+
+	def add_members_to_group(emails, group_id)
+		emails.each do |e|
+			new_member = User.find_by(email: e.strip)
+			group = Group.find(group_id)
+
+			if new_member && @user.groups.include?(group) #new_member has an account and user is associated with group
+				unless new_member.groups.include?(group)
+					new_member.groups << group #new_member is added to group
+				end
+			else #not registered or @user is not associated with given group => send email to join.
+				@message = "This user does not have an account"
+				erb :message_page
+			end
+		end
+
+		redirect '/'
+	end
+
+
+end
+

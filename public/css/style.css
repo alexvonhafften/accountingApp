@@ -66,4 +66,23 @@
 	text-align: center;
 }
 
+.input-left{
+	float:left;
+}
+footer{
+	text-align: center;
+}
 
+.input:focus{
+	outline: 0;
+	-webkit-box-shadow: none;
+	box-shadow: none;
+}
+
+.input{
+	background-color: white;
+	box-shadow: none;
+	-webkit-box-shadow: none;
+	padding:0;
+	border:none;
+}

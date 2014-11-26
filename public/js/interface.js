@@ -85,7 +85,3 @@ $(".cancel-delete").click(function(){
 
 
 
-
-
-
-

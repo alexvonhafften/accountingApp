@@ -6,11 +6,11 @@ gem 'sinatra-activerecord', require: 'sinatra/activerecord'
 gem 'rake'
 gem 'tux'
 gem 'bcrypt'
+gem 'dotenv'
 
 group :development do
   gem 'sqlite3', '>= 1.3.9'
   gem 'shotgun', '>= 0.9'
-  gem 'dotenv'
 end
 
 group :production do
