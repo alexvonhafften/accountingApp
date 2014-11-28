@@ -1,6 +1,11 @@
 <ul class="list-group">
   <li class="list-group-item new-payment">
     <h4 id="new-payment-button" class="list-group-item-heading">Add Payment</h4>
+    <!--
+    ################################################
+      PAYMENT FORM
+    ################################################  
+    -->
     <form id="new-payment-form" class="form-horizontal" method="POST" action="/new_payment">
       <fieldset>
         <legend>Create New Payment</legend>
@@ -40,6 +45,11 @@
       </fieldset>
     </form>
   </li>
+  <!--
+  ################################################
+  Get Active Groups
+  ################################################  
+  -->
   <% @user.groups.where(active:true).each do |g| %>
   <li class="list-group-item group">
     <h3 class="list-group-item-heading"><%= g.name %> <span class="payment-size payment-amount badge"><%= g.payments.size %> bill(s)</span></h4>
@@ -47,6 +57,11 @@
       <fieldset>
         <div class="form-group">
           <div class="col-lg-10">
+<!--
+################################################
+  List Group Members in an input field, add new member form
+################################################  
+-->
             <% if g.users.size > 1%>
               <% group_users = ''%>
               <% g.users.each do |u| %>
@@ -60,6 +75,11 @@
         </div>
       </fieldset>
     </form>
+    <!--
+    ################################################
+      Group Info *****Initially Hidden
+    ################################################  
+    -->
     <div class="groupInfo">
       <% if g.payments.empty? %>
         <p>There are no payments for this group</p>
