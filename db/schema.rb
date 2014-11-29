@@ -11,7 +11,13 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20141125051709) do
+ActiveRecord::Schema.define(version: 20141129000638) do
+
+  create_table "balances", force: true do |t|
+    t.integer "user_id"
+    t.integer "group_id"
+    t.decimal "amount"
+  end
 
   create_table "groups", force: true do |t|
     t.string  "name"
@@ -28,8 +34,8 @@ ActiveRecord::Schema.define(version: 20141125051709) do
     t.datetime "due"
     t.integer  "user_id"
     t.integer  "group_id"
-    t.string   "amount"
     t.boolean  "active",   default: true
+    t.decimal  "amount"
   end
 
   create_table "users", force: true do |t|

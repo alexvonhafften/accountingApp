@@ -7,6 +7,7 @@ Dotenv.load
 require './models/User.rb'
 require './models/Group.rb'
 require './models/Payment.rb'
+require './models/Balance.rb'
 
 enable :sessions
 
@@ -78,6 +79,7 @@ end
 post '/new_group' do
 	if @user
 		@user.groups.create(name: params[:name])
+		Balance.create(user: @user, group: Group.last)
 		unless params['emails'].nil?
 			add_members_to_group(params['emails'].split(','), Group.last.id)
 		end
@@ -93,6 +95,8 @@ post '/new_payment' do
 	if @user
 		group = Group.find(params[:group_id])
 		Payment.create(user: @user, group: group, name: params[:name], amount: params[:amount], due: params[:due])
+		#calculate balances
+		calculate_balances(group)
 		redirect '/'
 	else
 		@message = "You Must Be Logged In To Create A Payment"
@@ -155,23 +159,47 @@ end
 helpers do
 
 	def add_members_to_group(emails, group_id)
+	
+		group = Group.find(group_id)
+
 		emails.each do |e|
 			new_member = User.find_by(email: e.strip)
-			group = Group.find(group_id)
 
 			if new_member && @user.groups.include?(group) #new_member has an account and user is associated with group
 				unless new_member.groups.include?(group)
 					new_member.groups << group #new_member is added to group
+					Balance.create(user: new_member, group: group)
 				end
 			else #not registered or @user is not associated with given group => send email to join.
 				@message = "This user does not have an account"
 				erb :message_page
 			end
 		end
-
+		calculate_balances(group)
 		redirect '/'
 	end
 
 
+	def calculate_balances(group)
+		group_sum = 0
+
+		#add total for the group
+		group.payments.each do |p|
+				group_sum += p.amount
+		end
+
+		user_share = group_sum / group.users.size
+
+		#find each user's balance
+		group.users.each do |u|
+			user_sum = 0
+			u.payments.where(group: group).each do |p|
+				user_sum += p.amount
+			end
+			#update in the balances table
+			u.balances.find_by(group: group).update(amount: user_share - user_sum)
+		end
+
+	end
 end
 
