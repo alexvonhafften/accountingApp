@@ -52,10 +52,10 @@ Get Active Groups
 -->
   <% @user.groups.where(active:true).each do |g| %>
   <li class="list-group-item group">
-    <h3 class="list-group-item-heading"><%= g.name %> <span class="payment-size payment-amount badge"><%= g.balances.find_by(user: @user).amount %></span></h4>
+    <h3 class="list-group-item-heading"><%= g.name %> <span class="payment-size payment-amount badge"><%= g.balances.find_by(user: @user).amount %></span><a href="delete?type=g&id=<%= g.id %>" class="delete-group" title="delete group"><span class="oi oi-x icon"></span></a></h4>
     <form id="new-member-form" class="form-horizontal" method="POST" action="/new_group_member?id=<%= g.id %>">
       <fieldset>
-        <div class="form-group">
+        <div class="form-group input-emails">
           <div class="col-lg-10">
 <!--
 ################################################
@@ -81,16 +81,15 @@ Get Active Groups
     ################################################  
     -->
     <div class="groupInfo">
-      <% if g.payments.empty? %>
+      <% if g.payments.where(active: true).empty? %>
         <p>There are no payments for this group</p>
       <% else %>
-        <% g.payments.each do |p| %>
+        <% g.payments.where(active: true).each do |p| %>
           <h5 class="list-group-item-heading payment-name"><%= p.name %></h5><span class="payment-amount badge"><%= p.amount %></span>
-          <p class="payment-due">Due: <%= p.due %></p>
+          <p class="payment-due">Paid By: <%= p.user.name %></p>
         <% end %>
       <% end %>
-      <a href="delete?type=g&id=<%= g.id %>"><button class="delete-group">Delete</button></a>
-      <a href=""><button class="edit-group">Edit</button></a>
+      <a href="/email?id=<%= g.id %>"><button class="send-invoice btn btn-primary text-uppercase"><span class="oi oi-envelope-closed icon"></span> Send Invoice</button></a>
     </div>
   </li>
   <% end %>

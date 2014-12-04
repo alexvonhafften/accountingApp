@@ -32,6 +32,7 @@ $("#register-from-login").click(function(event){
 $(".groupInfo").hide();
 $("#new-group-form").hide();
 $("#new-payment-form").hide();
+$(".delete-group").hide();
 
 var isPaymentFormHidden = true;
 var isNewGroupFormHidden = true;
@@ -50,6 +51,7 @@ $(".new-payment").click(function(){
 $(".group").click(function(){
   $(this).find(".groupInfo").toggle();
   $(this).find(".payment-size").toggle();
+  $(this).find(".delete-group").toggle();
 })
 
 $(".new-group").click(function(){

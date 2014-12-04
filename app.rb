@@ -129,17 +129,17 @@ end
 
 post '/delete' do
 	if @user
-		if params[:type] == 'g' #deactivate a group
+		if params[:type] == 'g' && params[:confirm] == 'yes' #deactivate a group
 			@group = Group.find(params[:id])
 			@group.update(active: 'false')
-		elsif params[:type] == 'u' #deactivate a user
+		elsif params[:type] == 'u' && params[:confirm] == 'yes' #deactivate a user
 			@user.update(active: 'false')
 		end
 		redirect '/'
 	else
 		@message = "You Must Be Logged In To Delete Items"
 		erb :message_page
-	end	
+	end
 end
 
 get '/logout' do
@@ -149,6 +149,31 @@ end
 
 get '/account' do
 	erb :account
+end
+
+get '/email' do
+	if @user
+		group = Group.find(params[:id])
+
+		html_body = generate_email_body(group)
+		
+		group.users.each do |u|
+			send_email(u.email,html_body)
+		end
+
+		#archive payments
+		group.payments.each do |p|
+			p.update(active: false)
+		end
+
+		#reset balances
+		calculate_balances(group)
+	else 
+		@message = "You Must Be Logged In To Send Invoice"
+		erb :message_page
+	end
+
+	redirect '/'
 end
 
 
@@ -163,15 +188,22 @@ helpers do
 		group = Group.find(group_id)
 
 		emails.each do |e|
-			new_member = User.find_by(email: e.strip)
+			e = e.strip
+			new_member = User.find_by(email: e)
 
-			if new_member && @user.groups.include?(group) #new_member has an account and user is associated with group
-				unless new_member.groups.include?(group)
+			if @user.groups.include?(group) #new_member has an account and user is associated with group
+				unless new_member
+					User.create(email: e)
+					new_member = User.find_by(email: e)
+					send_email(e, new_user_email_body(e))
+				end
+
+				unless new_member.groups.include?(group) #unless this memeber is already in the group
 					new_member.groups << group #new_member is added to group
 					Balance.create(user: new_member, group: group)
 				end
-			else #not registered or @user is not associated with given group => send email to join.
-				@message = "This user does not have an account"
+			else #@user is not associated with requested group.
+				@message = "User does not have permission to edit this group"
 				erb :message_page
 			end
 		end
@@ -184,7 +216,7 @@ helpers do
 		group_sum = 0
 
 		#add total for the group
-		group.payments.each do |p|
+		group.payments.where(active: true).each do |p|
 				group_sum += p.amount
 		end
 
@@ -193,7 +225,7 @@ helpers do
 		#find each user's balance
 		group.users.each do |u|
 			user_sum = 0
-			u.payments.where(group: group).each do |p|
+			u.payments.where(group: group, active: true).each do |p|
 				user_sum += p.amount
 			end
 			#update in the balances table
@@ -201,5 +233,40 @@ helpers do
 		end
 
 	end
+
+	def send_email(email, body)
+		Pony.mail({
+		  :to => email,
+		  :via => :smtp,
+		  :html_body => body,
+		  :via_options => {
+		    :address              => 'smtp.gmail.com',
+		    :port                 => '587',
+		    :enable_starttls_auto => true,
+		    :user_name            => ENV['EMAIL_USERNAME'],
+		    :password             => ENV['EMAIL_PASSWORD'],
+		    :authentication       => :plain, # :plain, :login, :cram_md5, no auth by default
+		  }
+		})
+
+	end
+
+	def generate_email_body(group)
+		body = ''
+		group.balances.each do |b|
+			body += "#{b.user.name} : #{b.amount} \n"
+		end
+
+		return body
+	end
+
+	def new_user_email_body(email)
+		body = '<h1>Welcome to SWAGcounting++</h1><p>Click <a href="https://accounting-app.herokuapp.com/?email="#{email}">here</a> to register for your account!</p>'
+
+	end
 end
+
+
+
+
 
