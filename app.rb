@@ -36,6 +36,16 @@ get '/' do
 	end
 end
 
+get '/archive' do
+	if @user.groups.include?(Group.find(params[:id]))
+		@group = Group.find(params[:id])
+		erb :archive
+	else
+		@message = "You do not have permission to view this page, you are not a part of this group."
+		erb :message_page
+	end
+end
+
 post '/login' do
 	# Get a handle to a user with a name that matches the
   # submitted username. Returns nil if no such user
@@ -147,17 +157,16 @@ get '/logout' do
 	redirect '/'
 end
 
-get '/account' do
-	erb :account
+get '/profile' do
+	erb :profile
 end
 
 get '/email' do
 	if @user
 		group = Group.find(params[:id])
-
-		html_body = generate_email_body(group)
 		
 		group.users.each do |u|
+			html_body = generate_email_body(group, u)
 			send_email(u.email,html_body)
 		end
 
@@ -220,6 +229,7 @@ helpers do
 				group_sum += p.amount
 		end
 
+		group.update(balance: group_sum) #update the group balance
 		user_share = group_sum / group.users.size
 
 		#find each user's balance
@@ -251,10 +261,27 @@ helpers do
 
 	end
 
-	def generate_email_body(group)
-		body = ''
+	def generate_email_body(group, user)
+
+		body = "<h1>Here is the invoice for #{group.name}</h1>"
+
+
+		user_balance = user.balances.find_by(group: group)
+		
+		if user_balance > 0
+			body += '<h2>You owe the group $#{user_balance}0</h2>'
+		elsif user_balance < 0
+			body += '<h2>The group owes you $#{user_balance*-1}0</h2>'
+		else 
+			body += '<h2>You do not owe money.</h2>'
+		end
+		
+		group.payments.where(active: true).each do |p|
+			body += "<li><h3>#{p.name} #{p.amount}</h3><p>Paid by: #{p.user.name}</p></li>"
+		end
+
 		group.balances.each do |b|
-			body += "#{b.user.name} : #{b.amount} \n"
+			body += "<h2>#{b.user.name} : #{b.amount} </h2>"
 		end
 
 		return body

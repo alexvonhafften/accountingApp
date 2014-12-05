@@ -37,6 +37,26 @@ $(".delete-group").hide();
 var isPaymentFormHidden = true;
 var isNewGroupFormHidden = true;
 
+$(".user-share").each(function(){
+	var paymentAmount = parseFloat($(this).text());
+	$(this).text(numeral(paymentAmount).format('$0,0.00'));
+
+})
+
+$(".payment-size").each(function(){
+	var paymentAmount = parseFloat($(this).text()); //value of money either (-)owed to @user or (+) owed to the group
+
+	if (paymentAmount < 0){
+		//@user is owed money
+		$(this).text("Owes You "+numeral(paymentAmount*(-1)).format('$0,0.00'));//format and print amount owed
+
+	}else if(paymentAmount == 0){
+		$(this).text("Even");//format and print amount owed
+	}else{
+		//@user owes the group money
+		$(this).text("You owe the group "+numeral(paymentAmount*(-1)).format('$0,0.00'))//format and print amount owed
+	}
+})
 
 $(".new-payment").click(function(){
 	if (isPaymentFormHidden){
@@ -78,12 +98,3 @@ $(".cancel-user").click(function(event){ //hide forms when user clicks 'cancel'
 		$("#new-group-button").show();
 	}
 })
-
-$(".cancel-delete").click(function(){
-	console.error("Needs to be written");
-})
-
-
-
-
-

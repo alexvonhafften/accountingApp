@@ -97,3 +97,14 @@ footer{
 	float:right;
 	color: #999999;
 }
+
+.no-payments{
+	background-color: rgb(217, 35, 15);
+	padding:10px;
+	color:white;
+	border-radius: 4px;
+}
+
+.no-payments a{
+	color:white;
+}
