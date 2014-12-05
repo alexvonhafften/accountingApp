@@ -48,7 +48,7 @@ $(".payment-size").each(function(){
 
 	if (paymentAmount < 0){
 		//@user is owed money
-		$(this).text("Owes You "+numeral(paymentAmount*(-1)).format('$0,0.00'));//format and print amount owed
+		$(this).text("Owes You "+numeral(paymentAmount*(-1)).format('$0,0.00'));//format and print amount owed using http://numeraljs.com/
 
 	}else if(paymentAmount == 0){
 		$(this).text("Even");//format and print amount owed
