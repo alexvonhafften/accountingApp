@@ -2,10 +2,8 @@
 require 'rubygems'
 require 'bundler/setup'
 Bundler.require
+Dotenv.load
 
-group :development do
-	Dotenv.load
-end
 
 require './models/User.rb'
 require './models/Group.rb'
