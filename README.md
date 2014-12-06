@@ -20,7 +20,7 @@ Rent, Bills, Food, a solution to get paid back.
     bundle install --without production
     ```
 
-3. setup the environment variables.
+3. setup the environment variables. If you want to be able to send emails, you must also configure EMAIL_USERNAME, and EMAIL_PASSWORD to point to your desired account, currently set up for a gmail acccount. See App.rb send_email function for configuring different mail servers.
 	Session Secret is requried for multiple users. Create your own random string, we use 64 characters in the live app.
     ```
     SESSION_SECRET=VHJKXVHSJKXBHJKWBHGXJWKHJ
