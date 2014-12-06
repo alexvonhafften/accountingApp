@@ -200,8 +200,8 @@ helpers do
 			e = e.strip
 			new_member = User.find_by(email: e)
 
-			if @user.groups.include?(group) #new_member has an account and user is associated with group
-				unless new_member
+			if @user.groups.include?(group) #if user is associated with group
+				unless new_member #unless new_member has an account
 					User.create(email: e)
 					new_member = User.find_by(email: e)
 					send_email(e, new_user_email_body(e))
@@ -288,7 +288,7 @@ helpers do
 	end
 
 	def new_user_email_body(email)
-		body = '<h1>Welcome to SWAGcounting++</h1><p>Click <a href="https://accounting-app.herokuapp.com/?email="#{email}">here</a> to register for your account!</p>'
+		body = '<h1>Welcome to LCounting	</h1><p>Click <a href="https://accounting-app.herokuapp.com/?email="#{email}">here</a> to register for your account!</p>'
 
 	end
 end

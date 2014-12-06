@@ -1,4 +1,5 @@
 #LCounting, accountingApp
+[This is Live!](http://accounting-app.herokuapp.com/)
 This is an app designed to simplify the way roommates keep track of shared expenses. It can also be used for things like roadtrips, where multiple people are sharing the cost of many items.
 
 LCounting sends an invoice to all group members, giving them a break down of shared expenses, and who owes what.
