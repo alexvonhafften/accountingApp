@@ -54,7 +54,7 @@ $(".payment-size").each(function(){
 		$(this).text("Even");//format and print amount owed
 	}else{
 		//@user owes the group money
-		$(this).text("You owe the group "+numeral(paymentAmount*(-1)).format('$0,0.00'))//format and print amount owed
+		$(this).text("You owe the group "+numeral(paymentAmount).format('$0,0.00'))//format and print amount owed
 	}
 })
 
