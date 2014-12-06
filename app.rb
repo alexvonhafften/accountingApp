@@ -2,7 +2,6 @@
 require 'rubygems'
 require 'bundler/setup'
 Bundler.require
-Dotenv.load
 
 
 require './models/User.rb'

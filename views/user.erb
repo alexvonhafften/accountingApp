@@ -89,8 +89,8 @@ Get Active Groups
           <h5 class="list-group-item-heading payment-name"><%= p.name %></h5><span class="payment-amount list-payment-amount badge">$<%= p.amount %>0</span>
           <p class="payment-due">Paid By: <%= p.user.name %></p>
         <% end %>
-          <hr>
-          <h5 class="list-group-item-heading payment-name">Total Group Costs:</h5><span class="payment-amount list-payment-amount">$<%= g.balance %>0</span>
+          
+          <h5 class="list-group-item-heading payment-name group-cost">Total Group Costs:</h5><span class="payment-amount list-payment-amount group-cost">$<%= g.balance %>0</span>
           <h5 class="list-group-item-heading payment-name">Each Member Share:</h5><span class="payment-amount list-payment-amount user-share"><%= (g.balance/g.users.size) %></span>
           <a href="/email?id=<%= g.id %>"><button class="send-invoice btn btn-primary text-uppercase"><span class="oi oi-envelope-closed icon"></span> Send Invoice</button></a>
       <% end %>
