@@ -33,6 +33,7 @@ $(".groupInfo").hide();
 $("#new-group-form").hide();
 $("#new-payment-form").hide();
 $(".delete-group").hide();
+$(".member-email-span").hide();
 
 var isPaymentFormHidden = true;
 var isNewGroupFormHidden = true;
@@ -42,6 +43,29 @@ $(".user-share").each(function(){
 	$(this).text(numeral(paymentAmount).format('$0,0.00'));
 
 })
+
+function isEmailStringValid(){
+	return false;
+}
+
+
+function inputEmailEvent(){
+	if(isEmailStringValid()){//ensure there is a valid string in the input.
+		$(".member-email-span").hide();
+	}else{
+		$(".member-email-span").show();
+	}
+}
+
+
+function enableSubmitEvent(){
+
+}
+
+
+
+$("#inputEmail").focus(inputEmailEvent).keyup(inputEmailEvent).keyup(enableSubmitEvent);
+
 
 $(".payment-size").each(function(){
 	var paymentAmount = parseFloat($(this).text()); //value of money either (-)owed to @user or (+) owed to the group

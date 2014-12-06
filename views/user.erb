@@ -53,7 +53,7 @@ Get Active Groups
 -->
   <% @user.groups.where(active:true).each do |g| %>
   <li class="list-group-item group">
-    <h3 class="list-group-item-heading"><%= g.name %> <span class="payment-size payment-amount badge"><%= g.balances.find_by(user: @user).amount %></span><a href="delete?type=g&id=<%= g.id %>" class="delete-group" title="delete group"><span class="oi oi-x icon"></span></a></h4>
+    <h3 class="list-group-item-heading"><%= g.name %> <span class="payment-size payment-amount badge"><%= g.balances.find_by(user_id: @user.id).amount %></span><a href="delete?type=g&id=<%= g.id %>" class="delete-group" title="delete group"><span class="oi oi-x icon"></span></a></h4>
     <form id="new-member-form" class="form-horizontal" method="POST" action="/new_group_member?id=<%= g.id %>">
       <fieldset>
         <div class="form-group input-emails">
@@ -69,6 +69,8 @@ Get Active Groups
                 <% group_users << u.email + ', '%>
               <% end %>
               <input type="text" class="form-control input" id="inputEmail" value="<%= group_users%>" name="emails" required>
+              <span class="member-email-span">Separate user emails with a comma, press <b>ENTER</b> to save</span>
+
             <% else %>
               <input type="text" class="form-control input" id="inputEmail" placeholder="Enter Emails Separated By Commas" name="emails" required>
             <%end%>

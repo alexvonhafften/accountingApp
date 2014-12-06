@@ -7,6 +7,7 @@ gem 'rake'
 gem 'tux'
 gem 'bcrypt'
 gem 'pony'
+gem 'dotenv'
 
 group :development do
   gem 'sqlite3', '>= 1.3.9'

@@ -2,7 +2,7 @@
 require 'rubygems'
 require 'bundler/setup'
 Bundler.require
-
+Dotenv.load
 
 require './models/User.rb'
 require './models/Group.rb'
@@ -266,7 +266,7 @@ helpers do
 		body = "<h1>Here is the invoice for #{group.name}</h1>"
 
 
-		user_balance = user.balances.find_by(group: group)
+		user_balance = user.balances.find_by(group: group).amount
 		
 		if user_balance > 0
 			body += '<h2>You owe the group $#{user_balance}0</h2>'
