@@ -5,6 +5,7 @@ Bundler.require
 Dotenv.load
 
 require './models/User.rb'
+require './models/Email.rb'
 require './models/Group.rb'
 require './models/Payment.rb'
 require './models/Balance.rb'
@@ -72,10 +73,10 @@ post '/login' do
   end
 end
 
-
 #handle registration of a new user
 post '/new_user' do
-	@user = User.create(params)
+	@user = User.create(params)	
+	
 	if @user.valid?
 		session[:name] = @user.name
     	redirect '/'
@@ -84,6 +85,43 @@ post '/new_user' do
     	erb :message_page
 	end
 end
+
+get '/register' do
+
+	email = Email.find_by(email: params[:email])
+	unless email.confirmation_key != params[:hash]
+		email.update(confirmed: true);
+		erb :register
+	else
+		@message = "Email and key do not match"
+		erb :message_page
+	end
+end
+
+post '/register' do
+	email = Email.find_by(email: params[:email])
+	
+	if email.confirmed
+		@user = User.create(params)
+		@user.groups << email.group
+		Balance.create(user: @user, group: @user.groups.first)
+		calculate_balances(@user.groups.first)
+
+		email.delete()
+	else
+		@message = "Your email has not been confirmed"
+		erb :message_page
+	end
+	
+	if @user.valid?
+		session[:name] = @user.name
+    	redirect '/'
+	else
+    	@message = @user.errors.full_messages.join(', ')
+    	erb :message_page
+	end
+end
+
 
 #handle creation of new group
 post '/new_group' do
@@ -202,14 +240,15 @@ helpers do
 
 			if @user.groups.include?(group) #if user is associated with group
 				unless new_member #unless new_member has an account
-					User.create(email: e)
-					new_member = User.find_by(email: e)
-					send_email(e, new_user_email_body(e))
-				end
-
-				unless new_member.groups.include?(group) #unless this memeber is already in the group
+					hash = rand(36**32).to_s(36) # random 32 digit string for user confirmation.
+					new_member = Email.create(email: e, confirmation_key: hash)
+					send_email(e, new_user_email_body(e, hash, group)) #send verification Email. 
+					group.emails << new_member
+				else new_member.groups.include?(group) #unless this memeber is already in the group
 					new_member.groups << group #new_member is added to group
 					Balance.create(user: new_member, group: group)
+					send_email(e, add_to_group_email_body(new_member.name, group))
+					group.users << new_member
 				end
 			else #@user is not associated with requested group.
 				@message = "User does not have permission to edit this group"
@@ -266,30 +305,41 @@ helpers do
 		body = "<h1>Here is the invoice for #{group.name}</h1>"
 
 
-		user_balance = user.balances.find_by(group: group).amount
+		user_balance = group.balances.find_by(user: user).amount
 		
 		if user_balance > 0
-			body += '<h2>You owe the group $#{user_balance}0</h2>'
+			body += '<h2>You owe the group $ #{user_balance}0</h2>'
 		elsif user_balance < 0
 			body += '<h2>The group owes you $#{user_balance*-1}0</h2>'
 		else 
 			body += '<h2>You do not owe money.</h2>'
 		end
 		
+
+		#list group payments
 		group.payments.where(active: true).each do |p|
 			body += "<li><h3>#{p.name} #{p.amount}</h3><p>Paid by: #{p.user.name}</p></li>"
 		end
 
+		#print everybody's balance
 		group.balances.each do |b|
 			body += "<h2>#{b.user.name} : #{b.amount} </h2>"
 		end
 
+		#squarecash mailto link
+		body += '<a href="mailto:cash@square.com?Subject=Hello%20again">Pay Using Square Cash.</a>' 
+
+
 		return body
 	end
 
-	def new_user_email_body(email)
-		body = '<h1>Welcome to LCounting	</h1><p>Click <a href="https://accounting-app.herokuapp.com/?email="#{email}">here</a> to register for your account!</p>'
+	def new_user_email_body(email, hash, group)
+		body = '<h1>Welcome to LCounting	</h1><p>Click <a href="https://accounting-app.herokuapp.com/register?email='+email+'&hash='+hash+'">here</a> to register!</p>'
+		body +='<p>You have been added to '+group.users.first.name+'\'s group.</p><h2>After registering, you will be able to view and add payments to the '+group.name+'.</h2>'
+	end
 
+	def add_to_group_email_body(name, group)
+		body = '<h1>Dear '+name+'</h1><p>You have been added to '+group.users.first.name+'\'s group.</p><h2>You can now view and add payments to the <a href="http://accounting-app.herokuapp.com">'+group.name+'</a>.</h2>'
 	end
 end
 

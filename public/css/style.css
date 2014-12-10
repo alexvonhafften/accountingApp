@@ -112,3 +112,13 @@ footer{
 .group-cost{
 	margin-top: 10px;
 }
+
+legend{
+	text-align: center;
+}
+
+.member-email-span{
+	clear: both;
+	margin-top: -10px;
+	margin-bottom: 10px;
+}

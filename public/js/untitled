@@ -1,0 +1,13 @@
+class Emails < ActiveRecord::Migration
+  def change
+  	create_table :emails do |e|
+      e.string :email
+      e.string :confirmation_key
+      e.integer :group_id
+    end
+
+    change_table :users do |u|
+    	u.boolean :confirmed
+    end
+  end
+end

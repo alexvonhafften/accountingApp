@@ -11,12 +11,19 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20141205072707) do
+ActiveRecord::Schema.define(version: 20141210183346) do
 
   create_table "balances", force: true do |t|
     t.integer "user_id"
     t.integer "group_id"
     t.decimal "amount"
+  end
+
+  create_table "emails", force: true do |t|
+    t.string  "confirmation_key"
+    t.string  "email"
+    t.integer "group_id"
+    t.boolean "confirmed",        default: false
   end
 
   create_table "groups", force: true do |t|

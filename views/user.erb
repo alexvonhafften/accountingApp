@@ -1,3 +1,6 @@
+
+
+
 <ul class="list-group">
   <li class="list-group-item new-payment">
     <h4 id="new-payment-button" class="list-group-item-heading">Add Payment</h4>
@@ -28,7 +31,7 @@
         <div class="form-group">
           <label for="inputAmount" class="control-label col-lg-2">Amount</label>
           <div class="col-lg-10">
-            <input type="number" class="form-control" id="inputAmount" placeholder="Payment Amount" name="amount" required>
+            <input class="form-control" id="inputAmount" placeholder="Payment Amount" name="amount" required>
           </div>
         </div>
         <div class="form-group">
@@ -39,7 +42,7 @@
         </div>
         <div class="form-group">
           <div class="col-lg-10 col-lg-offset-2">
-            <button type="submit" class="btn btn-primary">Submit</button>
+            <button type="submit" id="submitPayment" class="btn btn-primary">Submit</button>
             <button class="btn btn-default cancel-user">Cancel</button>
           </div>
         </div>
@@ -63,13 +66,23 @@ Get Active Groups
   List Group Members in an input field, add new member form
 ################################################  
 -->
-            <% if g.users.size > 1%>
+            <% if g.users.size + g.emails.size > 1%>
               <% group_users = ''%>
+              <% group_unconfirmed = ''%>
               <% g.users.each do |u| %>
                 <% group_users << u.email + ', '%>
               <% end %>
-              <input type="text" class="form-control input" id="inputEmail" value="<%= group_users%>" name="emails" required>
+              <% g.emails.each do |e| %>
+                <% group_users << e.email + ', '%>
+                <% unless e.confirmed %>
+                  <% group_unconfirmed << e.email + ', ' %>
+                <% end %>
+              <% end %>
+              <input type="text" class="form-control input" id="inputEmail" value="<%= group_users %>" name="emails" required>
               <span class="member-email-span">Separate user emails with a comma, press <b>ENTER</b> to save</span>
+              <% if group_unconfirmed != '' %>
+                <span class="">The following users have not registered: <b><%= group_unconfirmed %></b> Group members will not be invoiced without registering.</span>
+              <% end %>
 
             <% else %>
               <input type="text" class="form-control input" id="inputEmail" placeholder="Enter Emails Separated By Commas" name="emails" required>
@@ -88,12 +101,22 @@ Get Active Groups
         <h4 class="no-payments">There are no payments for "<%= g.name %>"<span class="payment-amount badge"><a href="/archive?id=<%= g.id %>">View Archive</a> </span></h4>
       <% else %>
         <% g.payments.where(active: true).each do |p| %>
-          <h5 class="list-group-item-heading payment-name"><%= p.name %></h5><span class="payment-amount list-payment-amount badge">$<%= p.amount %>0</span>
+          <h5 class="list-group-item-heading payment-name"><%= p.name %></h5><span class="payment-amount list-payment-amount badge">$<%= p.amount %></span>
           <p class="payment-due">Paid By: <%= p.user.name %></p>
         <% end %>
           
-          <h5 class="list-group-item-heading payment-name group-cost">Total Group Costs:</h5><span class="payment-amount list-payment-amount group-cost">$<%= g.balance %>0</span>
-          <h5 class="list-group-item-heading payment-name">Each Member Share:</h5><span class="payment-amount list-payment-amount user-share"><%= (g.balance/g.users.size) %></span>
+          <h5 class="list-group-item-heading payment-name group-cost">Total Group Costs:</h5><span class="payment-amount list-payment-amount group-cost">$<%= g.balance %></span>
+          
+
+          <% if g.balances.find_by(user_id: @user.id).amount > 0 %>
+            <h5 class="list-group-item-heading payment-name">You Owe Group:</h5><span class="payment-amount list-payment-amount user-share"><%= g.balances.find_by(user_id: @user.id).amount %></span>
+
+          <% elsif g.balances.find_by(user_id: @user.id).amount < 0 %>
+            <h5 class="list-group-item-heading payment-name">Group Owes You:</h5><span class="payment-amount list-payment-amount user-share"><%= g.balances.find_by(user_id: @user.id).amount*(-1) %></span>
+
+          <% else g.balances.find_by(user_id: @user.id).amount == 0 %>
+            <h5 class="list-group-item-heading payment-name">You are Even!</h5>
+          <% end %>
           <a href="/email?id=<%= g.id %>"><button class="send-invoice btn btn-primary text-uppercase"><span class="oi oi-envelope-closed icon"></span> Send Invoice</button></a>
       <% end %>
     </div>

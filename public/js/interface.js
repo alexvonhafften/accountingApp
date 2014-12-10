@@ -1,25 +1,32 @@
 /******* index.erb ********/
+
+//Hide login and registration forms
 $("#login-form").hide();
 $("#register-form").hide();
 
-
+//login form
 $("#login").click(function(){
   $("#login-form").toggle();
   $("#welcome").hide();
+  $(".pitch").hide();
 });
 
+//registration form
 $("#register").click(function(){
   $("#welcome").hide();
   $("#register-form").toggle();
+  $(".pitch").hide();
 });
 
 
+//cancel registration or login
 $(".cancel").click(function(event){
 	event.preventDefault();
-	//home page logic
+	
 	$("#login-form").hide();
 	$("#register-form").hide();
 	$("#welcome").show();
+	$(".pitch").show();
 })
 
 $("#register-from-login").click(function(event){
@@ -38,14 +45,45 @@ $(".member-email-span").hide();
 var isPaymentFormHidden = true;
 var isNewGroupFormHidden = true;
 
-$(".user-share").each(function(){
-	var paymentAmount = parseFloat($(this).text());
-	$(this).text(numeral(paymentAmount).format('$0,0.00'));
+/****** Adding a new Payment  input sanitization and validation submit enabling ******/
+function enablePaymentSubmitEvent(){
+	$("#submitPayment").prop("disabled", !canSubmitPayment());
+}
 
-})
+function canSubmitPayment(){
+	console.log(isInputAmountValid() && isNameValid());
+	return isInputAmountValid() && isNameValid();
+}
+
+function isInputAmountValid(){
+	if(parseFloat($("#inputAmount").val()) > 0){
+		return true;
+	}
+	return false;
+}
+
+function isNameValid(){
+	if($("#inputPaymentName").val() === ''){
+		return false;
+	}
+	return true;
+}
+
+
+function inputAmountEvent(){
+	newPaymentAmount = $("#inputAmount").val();
+	formatted = numeral(newPaymentAmount).format('0,0.00');
+	$("#inputAmount").val(formatted);
+}
+
+$("#inputAmount").focusout(inputAmountEvent).keyup(enablePaymentSubmitEvent);
+$("#inputPaymentName").keyup(enablePaymentSubmitEvent);
+
+
+/****** Adding new members to the group, input sanitization and validation, interfacing ********/
 
 function isEmailStringValid(){
-	return false;
+	return true;
 }
 
 
@@ -67,6 +105,14 @@ function enableSubmitEvent(){
 $("#inputEmail").focus(inputEmailEvent).keyup(inputEmailEvent).keyup(enableSubmitEvent);
 
 
+/***** DISPLAY CURRENCIES PROPERLY *******/
+
+$(".user-share").each(function(){
+	var paymentAmount = parseFloat($(this).text());
+	$(this).text(numeral(paymentAmount).format('$0,0.00'));
+
+})
+
 $(".payment-size").each(function(){
 	var paymentAmount = parseFloat($(this).text()); //value of money either (-)owed to @user or (+) owed to the group
 
@@ -82,6 +128,10 @@ $(".payment-size").each(function(){
 	}
 })
 
+
+
+/******* Handling creation of new payments and groups interfacing *******/
+
 $(".new-payment").click(function(){
 	if (isPaymentFormHidden){
 		$("#new-payment-button").hide();
@@ -92,10 +142,16 @@ $(".new-payment").click(function(){
 	}
 })
 
-$(".group").click(function(){
-  $(this).find(".groupInfo").toggle();
-  $(this).find(".payment-size").toggle();
-  $(this).find(".delete-group").toggle();
+
+$(".group").click(function(){//hide ".groupInfo" for all groups then display the clicked one
+	$(".groupInfo").each(function(){
+		$(this).hide();
+	});
+	$(this).css("cursor", "auto")
+  $(this).find(".groupInfo").show();
+  $(this).find(".payment-size").hide();
+  $(this).find(".delete-group").show();
+  currentOpenGroup = $(this).find(".groupInfo");
 })
 
 $(".new-group").click(function(){
@@ -112,13 +168,17 @@ $(".cancel-user").click(function(event){ //hide forms when user clicks 'cancel'
 	event.preventDefault();
 
 	console.log(isPaymentFormHidden);
-	if(!isPaymentFormHidden){
+	if(!isPaymentFormHidden){ //reset the payment form
 		$("#new-payment-form").hide();
 		$("#new-payment-button").show();
+		$("#new-payment-form")[0].reset();
 	}
 
-	if(!isNewGroupFormHidden){
+	if(!isNewGroupFormHidden){ //reset the new-group form
 		$("#new-group-form").hide();
 		$("#new-group-button").show();
+		$("#new-group-form")[0].reset();
 	}
+
+
 })
