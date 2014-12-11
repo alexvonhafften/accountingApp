@@ -1,4 +1,4 @@
-<h3><%=@group.name%> Payment Archive</h3>
+<h1><%=@group.name%> Payment Archive</h1>
 
 	<div>
       <% if @group.payments.empty? %>
@@ -7,11 +7,11 @@
       	total_tracked = 0 #total amount of money tracked through this app for this group
       %>
         <% @group.payments.each do |p| %>
-          <h5 class="list-group-item-heading payment-name"><%= p.name %></h5><span class="payment-amount list-payment-amount badge">$<%= p.amount %>0</span>
+          <h5 class="list-group-item-heading payment-name"><%= p.name %></h5><span class="payment-amount list-payment-amount badge">$<%= p.amount %></span>
           <% total_tracked += p.amount %>
           <p class="payment-due">Paid By: <%= p.user.name %></p>
         <% end %>
           <hr>
-          <h3>Total Amount Tracked: $<%= total_tracked %>0</h3>
+          <h3>Total Amount Tracked: $<%= total_tracked %></h3>
       <% end %>
     </div>

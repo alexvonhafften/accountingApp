@@ -148,7 +148,7 @@ $(".group").click(function(){//hide ".groupInfo" for all groups then display the
 		$(this).hide();
 	});
 	$(this).css("cursor", "auto")
-  $(this).find(".groupInfo").show();
+  $(this).find(".groupInfo").fadeIn();
   $(this).find(".payment-size").hide();
   $(this).find(".delete-group").show();
   currentOpenGroup = $(this).find(".groupInfo");

@@ -318,7 +318,7 @@ helpers do
 
 		#list group payments
 		group.payments.where(active: true).each do |p|
-			body += "<li><h3>#{p.name} #{p.amount}</h3><p>Paid by: #{p.user.name}</p></li>"
+			body += '<li><h3>'+p.name+' '+p.amount+'</h3><p>Paid by: '+p.user.name+'</p></li>'
 		end
 
 		#print everybody's balance

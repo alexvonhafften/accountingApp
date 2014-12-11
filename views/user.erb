@@ -1,5 +1,28 @@
-
-
+<% if @user.groups.empty? %>
+  <form class="form-horizontal" method="POST" action="/new_group">
+      <fieldset>
+        <legend>New Group</legend>
+        <div class="form-group">
+          <label for="inputGroupName" class="col-lg-2 control-label">Name</label>
+          <div class="col-lg-10">
+            <input type="text" class="form-control" id="inputGroupName" placeholder="Group Name: ex. Home, Roadtrip" name="name" required>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="inputGroupMembers" class="col-lg-2 control-label">Members</label>
+          <div class="col-lg-10">
+            <input type="text" class="form-control" id="inputGroupMembers" placeholder="Group member emails, separated by commas" name="emails">
+          </div>
+        </div>
+        <div class="form-group">
+          <div class="col-lg-10 col-lg-offset-2">
+            <button type="submit" class="btn btn-primary">Submit</button>
+            <button class="btn btn-default cancel-user">Cancel</button>
+          </div>
+        </div>
+      </fieldset>
+    </form>
+<% else %>
 
 <ul class="list-group">
   <li class="list-group-item new-payment">
@@ -149,3 +172,4 @@ Get Active Groups
     </form>
   </li>
 </ul>
+<% end %>
