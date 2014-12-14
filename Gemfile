@@ -8,6 +8,7 @@ gem 'tux'
 gem 'bcrypt'
 gem 'pony'
 gem 'dotenv'
+gem 'mail'
 
 group :development do
   gem 'sqlite3', '>= 1.3.9'

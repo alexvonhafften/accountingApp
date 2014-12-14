@@ -132,7 +132,7 @@ Get Active Groups
           
 
           <% if g.balances.find_by(user_id: @user.id).amount > 0 %>
-            <h5 class="list-group-item-heading payment-name">You Owe Group:</h5><span class="payment-amount list-payment-amount user-share"><%= g.balances.find_by(user_id: @user.id).amount %></span>
+            <h5 class="list-group-item-heading payment-name">You Owe:</h5><span class="payment-amount list-payment-amount user-share"><%= g.balances.find_by(user_id: @user.id).amount %></span>
 
           <% elsif g.balances.find_by(user_id: @user.id).amount < 0 %>
             <h5 class="list-group-item-heading payment-name">Group Owes You:</h5><span class="payment-amount list-payment-amount user-share"><%= g.balances.find_by(user_id: @user.id).amount*(-1) %></span>

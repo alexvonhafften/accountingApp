@@ -1,6 +1,7 @@
 # app.rb
 require 'rubygems'
 require 'bundler/setup'
+require 'mail'
 Bundler.require
 Dotenv.load
 
@@ -23,6 +24,16 @@ else
 		:encoding => 'utf8'
 	)
 end
+
+Mail.defaults do
+  delivery_method :smtp, {
+    :port      => 587,
+    :address   => "smtp.mandrillapp.com",
+    :user_name => ENV["EMAIL_USERNAME"],
+    :password  => ENV["EMAIL_KEY"]
+  }
+end
+
 
 before do
 	@user = User.find_by(name: session[:name])
@@ -200,8 +211,8 @@ get '/profile' do
 end
 
 get '/email' do
-	if @user
-		group = Group.find(params[:id])
+	group = Group.find(params[:id])
+	if @user.groups.include?(group)
 		
 		group.users.each do |u|
 			html_body = generate_email_body(group, u)
@@ -239,16 +250,15 @@ helpers do
 			new_member = User.find_by(email: e)
 
 			if @user.groups.include?(group) #if user is associated with group
-				unless new_member #unless new_member has an account
+				if new_member.nil? #unless new_member has an account
 					hash = rand(36**32).to_s(36) # random 32 digit string for user confirmation.
 					new_member = Email.create(email: e, confirmation_key: hash)
 					send_email(e, new_user_email_body(e, hash, group)) #send verification Email. 
 					group.emails << new_member
-				else new_member.groups.include?(group) #unless this memeber is already in the group
+				elsif !group.users.include?(new_member) && !group.emails.include?(new_member) #unless this memeber is already in the group
 					new_member.groups << group #new_member is added to group
 					Balance.create(user: new_member, group: group)
 					send_email(e, add_to_group_email_body(new_member.name, group))
-					group.users << new_member
 				end
 			else #@user is not associated with requested group.
 				@message = "User does not have permission to edit this group"
@@ -283,63 +293,68 @@ helpers do
 
 	end
 
-	def send_email(email, body)
-		Pony.mail({
-		  :to => email,
-		  :via => :smtp,
-		  :html_body => body,
-		  :via_options => {
-		    :address              => 'smtp.gmail.com',
-		    :port                 => '587',
-		    :enable_starttls_auto => true,
-		    :user_name            => ENV['EMAIL_USERNAME'],
-		    :password             => ENV['EMAIL_PASSWORD'],
-		    :authentication       => :plain, # :plain, :login, :cram_md5, no auth by default
-		  }
-		})
+	def send_email(email, content)
+		mail = Mail.deliver do
+		  to      email
+		  from    'LCounting <bot@lcounting.com>' # Your from name and email address
+		  subject content[:subject]
 
+		  html_part do
+		    content_type 'text/html; charset=UTF-8'
+		    body content[:body]
+		  end
+		end
 	end
 
 	def generate_email_body(group, user)
-
-		body = "<h1>Here is the invoice for #{group.name}</h1>"
+		content = Hash.new
+		content[:subject] = "#{group.name} Invoice :: LCounting"
+		content[:body] = "<h1>Here is the invoice for #{group.name}</h1>"
 
 
 		user_balance = group.balances.find_by(user: user).amount
 		
 		if user_balance > 0
-			body += '<h2>You owe the group $ #{user_balance}0</h2>'
+			content[:body] += '<h2>You owe the group $ #{user_balance}0</h2>'
 		elsif user_balance < 0
-			body += '<h2>The group owes you $#{user_balance*-1}0</h2>'
+			content[:body] += '<h2>The group owes you $#{user_balance*-1}0</h2>'
 		else 
-			body += '<h2>You do not owe money.</h2>'
+			content[:body] += '<h2>You do not owe money.</h2>'
 		end
 		
 
 		#list group payments
 		group.payments.where(active: true).each do |p|
-			body += '<li><h3>'+p.name+' '+p.amount+'</h3><p>Paid by: '+p.user.name+'</p></li>'
+			content[:body] += '<li><h3>'+p.name+' $'+p.amount.to_s+'</h3><p>Paid by: '+p.user.name+'</p></li>'
 		end
 
 		#print everybody's balance
 		group.balances.each do |b|
-			body += "<h2>#{b.user.name} : #{b.amount} </h2>"
+			content[:body] += "<h2>#{b.user.name} : #{b.amount} </h2>"
 		end
 
 		#squarecash mailto link
-		body += '<a href="mailto:cash@square.com?Subject=Hello%20again">Pay Using Square Cash.</a>' 
+		content[:body] += '<a href="mailto:cash@square.com?Subject=Hello%20again">Pay Using Square Cash.</a>' 
 
 
-		return body
+		return content
 	end
 
 	def new_user_email_body(email, hash, group)
-		body = '<h1>Welcome to LCounting	</h1><p>Click <a href="https://accounting-app.herokuapp.com/register?email='+email+'&hash='+hash+'">here</a> to register!</p>'
-		body +='<p>You have been added to '+group.users.first.name+'\'s group.</p><h2>After registering, you will be able to view and add payments to the '+group.name+'.</h2>'
+		content = Hash.new
+		content[:subject] = "Welcome to LCounting! " +group.users.first.name + "added you to the #{group.name}"
+
+		content[:body] = '<h1>Welcome to LCounting	</h1><p>Click <a href="https://accounting-app.herokuapp.com/register?email='+email+'&hash='+hash+'">here</a> to register!</p>'
+		content[:body] +='<p>You have been added to '+group.users.first.name+'\'s group.</p><h2>After registering, you will be able to view and add payments to the '+group.name+'.</h2>'
+		return content
 	end
 
 	def add_to_group_email_body(name, group)
-		body = '<h1>Dear '+name+'</h1><p>You have been added to '+group.users.first.name+'\'s group.</p><h2>You can now view and add payments to the <a href="http://accounting-app.herokuapp.com">'+group.name+'</a>.</h2>'
+		content = Hash.new
+		content[:subject] = group.users.first.name + "added you to the #{group.name} :: LCounting"
+
+		content[:body] = '<h1>Dear '+name+'</h1><p>You have been added to '+group.users.first.name+'\'s group.</p><h2>You can now view and add payments to the <a href="http://accounting-app.herokuapp.com">'+group.name+'</a>.</h2>'
+		return content
 	end
 end
 

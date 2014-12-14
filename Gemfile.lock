@@ -75,6 +75,7 @@ DEPENDENCIES
   activerecord (= 4.0.4)
   bcrypt
   dotenv
+  mail
   pg
   pony
   rails_12factor
